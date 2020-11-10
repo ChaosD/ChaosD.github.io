@@ -267,7 +267,7 @@
 <td>a moniter, and 1 OSD run in SSD</td>
 </tr>
 </tbody></table>
-<h4 id="2-Partition-disk-for-bluestore"><a href="#2-Partition-disk-for-bluestore" class="headerlink" title="2. Partition disk for bluestore"></a>2. Partition disk for bluestore</h4><p>split each SSD into 4 partition. Then use ‘mkfs.xfs’ to format /dev/sdb1.</p>
+<h4 id="2-Partition-disk-for-bluestore"><a href="#2-Partition-disk-for-bluestore" class="headerlink" title="2. Partition disk for bluestore"></a>2. Partition disk for bluestore</h4><p>split each SSD into 4 partitions. Then use ‘mkfs.xfs’ to format /dev/sdb1.</p>
 <figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> parted /dev/sdb </span></span><br><span class="line">(parted) mkpart osd-device-0-data 0G 10G</span><br><span class="line"><span class="meta">$</span><span class="bash"> parted /dev/sdb </span></span><br><span class="line">(parted) mkpart  osd-device-0-wal 10G 20G</span><br><span class="line"><span class="meta">$</span><span class="bash"> parted /dev/sdb </span></span><br><span class="line">(parted) mkpart  osd-device-0-db 20G 30G</span><br><span class="line"><span class="meta">$</span><span class="bash"> parted /dev/sdb </span></span><br><span class="line">(parted) mkpart  osd-device-0-block 30G 70G</span><br><span class="line"></span><br><span class="line"><span class="meta">$</span><span class="bash"> mkfs.xfs /dev/sdb1</span></span><br></pre></td></tr></table></figure>
 
 <p>result：</p>
@@ -320,7 +320,7 @@
 <td></td>
 </tr>
 </tbody></table>
-<h4 id="3-Ceph-conf"><a href="#3-Ceph-conf" class="headerlink" title="3. Ceph.conf"></a>3. Ceph.conf</h4><p>create directory <strong>/etc/ceph</strong> to stores conf and keyring。</p>
+<h4 id="3-Ceph-conf"><a href="#3-Ceph-conf" class="headerlink" title="3. Ceph.conf"></a>3. Ceph.conf</h4><p>create directory <strong>/etc/ceph</strong> to store conf and keyring。</p>
 <p>/etc/ceph/ceph.conf:</p>
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">[global]</span><br><span class="line">fsid &#x3D; 57077c8f-0a92-42e8-a82c-61198875a30e</span><br><span class="line">osd crush chooseleaf type &#x3D;0</span><br><span class="line"></span><br><span class="line">[mon]</span><br><span class="line">mon data&#x3D;&#x2F;data&#x2F;$name</span><br><span class="line"> </span><br><span class="line">[mon.ca12]</span><br><span class="line">host&#x3D;ca12</span><br><span class="line">mon addr&#x3D;192.168.2.172:6789</span><br><span class="line">public addr&#x3D;192.168.2.172</span><br><span class="line"></span><br><span class="line">[mon.ca19]</span><br><span class="line">host&#x3D;ca19</span><br><span class="line">mon addr&#x3D;192.168.2.179:6789</span><br><span class="line">public addr&#x3D;192.168.2.179</span><br><span class="line"></span><br><span class="line">[mon.ca95]</span><br><span class="line">host&#x3D;ca95</span><br><span class="line">mon addr&#x3D;192.168.2.95:6789</span><br><span class="line">public addr&#x3D;192.168.2.95</span><br><span class="line"></span><br><span class="line">[osd]</span><br><span class="line">osd mkfs type&#x3D;xfs</span><br><span class="line">osd data &#x3D; &#x2F;data&#x2F;$name</span><br><span class="line">enable_experimental_unrecoverable_data_corrupting_features&#x3D; bluestore</span><br><span class="line">osd objectstore &#x3D; bluestore</span><br><span class="line">bluestore &#x3D; true</span><br><span class="line">bluestore fsck on mount &#x3D; true</span><br><span class="line">bluestore block create &#x3D; true</span><br><span class="line">bluestore block db size &#x3D;67108864</span><br><span class="line">bluestore block db create &#x3D; true</span><br><span class="line">bluestore block wal size &#x3D;134217728</span><br><span class="line">bluestore block wal create &#x3D;true</span><br><span class="line"></span><br><span class="line">[osd.0]</span><br><span class="line">host &#x3D; ca12</span><br><span class="line">bluestore block db path &#x3D;&#x2F;dev&#x2F;sdc2</span><br><span class="line">bluestore block wal path &#x3D;&#x2F;dev&#x2F;sdc3</span><br><span class="line">bluestore block path &#x3D; &#x2F;dev&#x2F;sdc4</span><br><span class="line"></span><br><span class="line">[osd.1]</span><br><span class="line">host &#x3D; ca19</span><br><span class="line">bluestore block db path &#x3D;&#x2F;dev&#x2F;sdd2</span><br><span class="line">bluestore block wal path &#x3D;&#x2F;dev&#x2F;sdd3</span><br><span class="line">bluestore block path &#x3D; &#x2F;dev&#x2F;sdd4</span><br><span class="line"></span><br><span class="line">[osd.2]</span><br><span class="line">host &#x3D; ca95</span><br><span class="line">bluestore block db path &#x3D;&#x2F;dev&#x2F;sdb2</span><br><span class="line">bluestore block wal path &#x3D;&#x2F;dev&#x2F;sdb3</span><br><span class="line">bluestore block path &#x3D; &#x2F;dev&#x2F;sdb4</span><br><span class="line"></span><br><span class="line">[mgr]</span><br><span class="line">mgr modules &#x3D; dashboard balancer</span><br><span class="line">mgr data &#x3D; &#x2F;data&#x2F;$name</span><br></pre></td></tr></table></figure>
 
@@ -330,7 +330,7 @@
 <ul>
 <li>db path: storing data of rocksdb</li>
 <li>wal path: for atom operation of rocksdb</li>
-<li>block path: storing real data</li>
+<li>block path: storing userdata</li>
 </ul>
 <p>matedata, such as keyring, is stored in the first partition /dev/sdb1。</p>
 </blockquote>
@@ -349,7 +349,7 @@
 
 
 
-<p>Next, let’s deploy more OSD in other node.</p>
+<p>Next, let’s deploy more OSDs in other nodes.</p>
 <h4 id="4-Deploy-more-MONs"><a href="#4-Deploy-more-MONs" class="headerlink" title="4. Deploy more MONs"></a>4. Deploy more MONs</h4><ul>
 <li>register new MON in MonMap (Configue in old moniter nodes)</li>
 </ul>
@@ -388,12 +388,12 @@
 <figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> ceph-osd -i 1 --mkfs --mkkey --no-mon-config</span></span><br></pre></td></tr></table></figure>
 
 <ul>
-<li>add the new keyring into ceph auth</li>
+<li>add the new keyring into the ceph auth</li>
 </ul>
 <figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> ceph auth add osd.1 osd <span class="string">&#x27;allow *&#x27;</span> mon <span class="string">&#x27;allow profile osd&#x27;</span> -i /data/osd.1/keyring</span></span><br></pre></td></tr></table></figure>
 
 <ul>
-<li>add osd into crush map</li>
+<li>add osd into the crush map</li>
 </ul>
 <figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> create a host <span class="keyword">in</span> crushmap</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> ceph osd crush add-bucket ca19 host</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> add the host into the root of crushmap</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> ceph osd crush move ca19 root=default </span></span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> add osd.1 into host ca19</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> ceph osd crush add osd.1 1.0 host=ca19</span></span><br></pre></td></tr></table></figure>
 
