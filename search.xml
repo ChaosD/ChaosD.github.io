@@ -470,4 +470,98 @@
         <tag>Open-Channel SSD</tag>
       </tags>
   </entry>
+  <entry>
+    <title>Lightnvm+qemu 搭建Open Channel SSD测试环境</title>
+    <url>/2020/11/10/Lightnvm+qemu%20%E6%90%AD%E5%BB%BAOpen%20Channel%20SSD%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83/</url>
+    <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="\assets\css\APlayer.min.css"><script src="\assets\js\APlayer.min.js" class="aplayer-secondary-script-marker"></script><script class="meting-secondary-script-marker" src="\assets\js\Meting.min.js"></script><p>Lightnvm的原作者在文档中给出了两种实现方式，第一种是使用真实设备，比如CNEX公司，华为公司的Open-channel SSD，价格昂贵。第二种方式就是本文将要介绍的，使用<a href="https://www.qemu.org/">QEMU</a>的方式，向主机侧提供一个模拟的支持open channel功能的nvme设备。实际上qemu中仅仅是模拟了NVMe specification 1.2.1的HCI的功能逻辑，并且作者增加了支持lightnvm的扩展，让主机端的驱动程序以为下面是一个真实的设备，这样一种方式就提供了一个快速，便捷地体验Lightnvm的方式 : )<br>下面是我的配置过程。</p>
+<h3 id="配置环境"><a href="#配置环境" class="headerlink" title="配置环境"></a>配置环境</h3><ul>
+<li>host: Centos 7.6</li>
+<li>guest: ubuntu 18.04 on nvme-qemu.</li>
+</ul>
+<h3 id="在主机端安装nvme-qemu"><a href="#在主机端安装nvme-qemu" class="headerlink" title="在主机端安装nvme-qemu"></a>在主机端安装nvme-qemu</h3><ul>
+<li><p>克隆增加lightnvm支持的分支，nvme-qemu(<a href="https://github.com/OpenChannelSSD/qemu-nvme">https://github.com/OpenChannelSSD/qemu-nvme</a>)<br><code>$ git clone https://github.com/OpenChannelSSD/qemu-nvme.git</code></p>
+</li>
+<li><p>编译QEMU源码，并且安装，需要注意的是 ，qemu需要安装在Linux主机下。在笔者电脑上，发现已安装glusterfs的头文件与nvme-qemu调用的参数不匹配（可能是glusterfs版本不匹配），因而关闭了对glusterfs的支持。</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> ./configure --python=/usr/bin/python2 --<span class="built_in">enable</span>-kvm --target-list=x86_64-softmmu --<span class="built_in">enable</span>-linux-aio --prefix=(安装的目录，如<span class="variable">$HOME</span>/qemu-nvme) --<span class="built_in">disable</span>-glusterfs</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> make -j8</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> make install</span></span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h3 id="创建QEMU虚拟机"><a href="#创建QEMU虚拟机" class="headerlink" title="创建QEMU虚拟机"></a>创建QEMU虚拟机</h3><h4 id="1-创建一个空白的磁盘文件"><a href="#1-创建一个空白的磁盘文件" class="headerlink" title="1. 创建一个空白的磁盘文件"></a>1. 创建一个空白的磁盘文件</h4><p>  <code>$ qemu-img create -f qcow2 ubuntu.qcow2 20G</code></p>
+<p>虚拟机的最大空间为20G，qcow2格式，空间动态增长</p>
+<h4 id="2-下载新版本的Ubuntu镜像"><a href="#2-下载新版本的Ubuntu镜像" class="headerlink" title="2. 下载新版本的Ubuntu镜像"></a>2. 下载新版本的Ubuntu镜像</h4><p>下载Ubuntu 18.04 64位桌面版。</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">$ wget https:&#x2F;&#x2F;releases.ubuntu.com&#x2F;18.04.5&#x2F;ubuntu-18.04.5-desktop-amd64.iso</span><br></pre></td></tr></table></figure>
+
+<h4 id="3-在该磁盘文件中安装Ubuntu系统。"><a href="#3-在该磁盘文件中安装Ubuntu系统。" class="headerlink" title="3. 在该磁盘文件中安装Ubuntu系统。"></a>3. 在该磁盘文件中安装Ubuntu系统。</h4><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">$ qemu-system-x86_64 -m 2G -enable-kvm ubuntu.qcow2 -cdrom ~&#x2F;ubuntu-18.04.5-desktop-amd64.iso</span><br></pre></td></tr></table></figure>
+
+<p>这一步遇到了一些问题。笔者用xshell连接服务器主机，并在服务器上运行QEMU虚拟机。在这一步出现报错：</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line">ALSA lib pulse.c:<span class="number">243</span>:(pulse_connect) PulseAudio: Unable to <span class="built_in">connect</span>: Connection refused</span><br><span class="line"></span><br><span class="line">alsa: Could <span class="keyword">not</span> initialize DAC</span><br><span class="line">alsa: Failed to <span class="built_in">open</span> `<span class="keyword">default</span><span class="number">&#x27;</span>:</span><br><span class="line">alsa: Reason: Connection refused</span><br><span class="line">ALSA lib pulse.c:<span class="number">243</span>:(pulse_connect) PulseAudio: Unable to <span class="built_in">connect</span>: Connection refused</span><br><span class="line"></span><br><span class="line">alsa: Could <span class="keyword">not</span> initialize DAC</span><br><span class="line">alsa: Failed to <span class="built_in">open</span> `<span class="keyword">default</span><span class="number">&#x27;</span>:</span><br><span class="line">alsa: Reason: Connection refused</span><br><span class="line">audio: Failed to create voice `pcspk<span class="number">&#x27;</span></span><br><span class="line">qemu-system-x86_64: Initialization of device isa-pcspk failed: Initializing audio voice failed</span><br></pre></td></tr></table></figure>
+
+<p>看注释是找不到音频输出。我在尝试了多个版本后，发现<strong>只有最近的master版本</strong>有这个问题（commit head = b6fb7eb1e9d708b920f24b559c503e68d0eb0329）。google答案后，修改了环境变量。</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">[root@localhost OCSSD_vm]# export QEMU_AUDIO_DRV=none</span><br><span class="line">[root@localhost OCSSD_vm]# $ qemu-system-x86_64 -m 2G -enable-kvm ubuntu.qcow2 -cdrom ~/ubuntu.iso</span><br><span class="line">VNC server running on ::1:5900</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>QEMU会默认创建VNC服务，等待客户端连接后，客户端处能够对虚拟机具体操作。因而打开另一个主机的shell窗口，安装vncviewer，使用vncviewer连接。注意，这里连接后会直接打开一个图形窗口，因而正常显示需要<strong>安装xmanager</strong>。</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> apt install vncviewer -y</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>Xmanager 破解版链接：<a href="https://pan.baidu.com/s/1AjcVwoh4euAzxe34bPwghw">https://pan.baidu.com/s/1AjcVwoh4euAzxe34bPwghw</a> 密码：g8me</p>
+</blockquote>
+<p>打开图形界面后，完成正常的ubuntu安装流程。</p>
+<h3 id="加载含有LightNVM模块的内核"><a href="#加载含有LightNVM模块的内核" class="headerlink" title="加载含有LightNVM模块的内核"></a>加载含有LightNVM模块的内核</h3><p>这一步笔者查阅了很多博客，尝试使用qemu更换内核，但总会产生奇怪的结果。比如使用qemu加载新内核后无法识别根目录，引入initrd后读取不到系统镜像等等。</p>
+<p>经过几天挣扎，最后在快要放弃的时候，发现Ubuntu 18.06原系统的/dev/路径下有一个小小的，不起眼的虚拟设备：lightnvm。</p>
+<p>！！？？？？</p>
+<p>OK，笔者电脑上Ubuntu18.06的内核（5.4.0-42-generic）已经安装了lightnvm的内核模块，不需要更换。因而直接进入下面流程。（所以不能完全参照博客，很多内容已经过期了）。</p>
+<h3 id="创建Virtual-OCSSD块设备"><a href="#创建Virtual-OCSSD块设备" class="headerlink" title="创建Virtual OCSSD块设备"></a>创建Virtual OCSSD块设备</h3><p>这一步大部分博客的方法都过期，可以直接参考github上的说明。</p>
+<p>在主机端创建OCSSD镜像。（2 group，每个group有）</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">$ qemu-img create -f ocssd -o num_grp&#x3D;2,num_pu&#x3D;4,num_chk&#x3D;60 ocssd.img</span><br></pre></td></tr></table></figure>
+
+<p>关于create参数的详情，用help查看。</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">$ qemu-img create -f ocssd -o help</span><br></pre></td></tr></table></figure>
+
+<p>创建完成后，添加到虚拟机上并运行</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> /usr/qemu-nvme/bin/qemu-system-x86_64 -m 4G -<span class="built_in">enable</span>-kvm ./ubuntu.qcow2 -blockdev ocssd,node-name=nvme01,file.driver=file,file.filename=ocssd.img -device nvme,drive=nvme01,serial=deadbeef,id=lnvm</span></span><br></pre></td></tr></table></figure>
+
+<p>继续使用vncviewer打开虚拟机，准备安装liblightnvm。</p>
+<h3 id="安装liblightnvm"><a href="#安装liblightnvm" class="headerlink" title="安装liblightnvm"></a>安装liblightnvm</h3><p>进入虚拟机，首先安装nvme-cli</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> sudo apt-get install nvme-cli</span></span><br></pre></td></tr></table></figure>
+
+<p>列出所有nvme设备。此处显示我们刚添加的nvme0n1。</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> sudo nvme lnvm list</span></span><br><span class="line">Device         Block manager        Version</span><br><span class="line">nvme0n1        gennvm                (1,0,0)</span><br></pre></td></tr></table></figure>
+
+<p>接下来安装liblightnvm</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> git <span class="built_in">clone</span> https://github.com/OpenChannelSSD/liblightnvm.git</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> <span class="built_in">cd</span> liblightnvm</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> sudo apt install cmake libcunit1-dev</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> make configure</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> make</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> sudo make install</span></span><br></pre></td></tr></table></figure>
+
+<p>完成安装后，可以使用测试的helloworld代码验证。（代码在liblightnvm/doc/src/quick_start/hello.c文件中）</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;liblightnvm.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> **argv)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">nvm_dev</span> *<span class="title">dev</span> = <span class="title">nvm_dev_open</span>(&quot;/<span class="title">dev</span>/<span class="title">nvme0n1</span>&quot;);</span></span><br><span class="line"><span class="keyword">if</span> (!dev) &#123;</span><br><span class="line">perror(“nvm_dev_open”);</span><br><span class="line"><span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">&#125;</span><br><span class="line">nvm_dev_pr(dev);</span><br><span class="line">nvm_dev_close(dev);</span><br><span class="line"></span><br><span class="line"><span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>将上面的代码保存为 hello.c<br>然后编译：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> gcc hello.c -fopenmp -llightnvm -o hello</span></span><br></pre></td></tr></table></figure>
+
+<p>并运行</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> sudo ./hello</span></span><br></pre></td></tr></table></figure>
+
+<p>得到输出。该输出与命令行中使用nvme-cli指令一致。</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> nvm_dev info /dev/nvme0n1</span></span><br></pre></td></tr></table></figure>
+
+<p>输出为：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> Device information -- nvm_dev_pr</span></span><br><span class="line">dev_attr:</span><br><span class="line">  verid: 0x02</span><br><span class="line">  be_id: 0x01</span><br><span class="line">  be_name: &#x27;NVM_BE_IOCTL&#x27;</span><br><span class="line">  name: &#x27;nvme0n1&#x27;</span><br><span class="line">  path: &#x27;/dev/nvme0n1&#x27;</span><br><span class="line">  fd: 3</span><br><span class="line">  ssw: 12</span><br><span class="line">  mccap: &#x27;00000000000000000000000000000001&#x27;</span><br><span class="line">  bbts_cached: 0</span><br><span class="line">  quirks: &#x27;00000000&#x27;</span><br><span class="line">dev_geo:</span><br><span class="line">  verid: 0x02</span><br><span class="line">  npugrp: 8</span><br><span class="line">  npunit: 4</span><br><span class="line">  nchunk: 1474</span><br><span class="line">  nsectr: 6144</span><br><span class="line">  nbytes: 4096</span><br><span class="line">  nbytes_oob: 16</span><br><span class="line">  tbytes: 1187021586432</span><br><span class="line">  tmbytes: 1132032</span><br><span class="line">dev_cmd_opts:</span><br><span class="line">  mask: &#x27;00000000000000000000000011001000&#x27;</span><br><span class="line">  iomd: &#x27;SYNC&#x27;</span><br><span class="line">  addr: &#x27;VECTOR&#x27;</span><br><span class="line">  plod: &#x27;PRP&#x27;</span><br><span class="line">dev_vblk_opts:</span><br><span class="line">  pmode: &#x27;SNGL&#x27;</span><br><span class="line">  erase_naddrs_max: 64</span><br><span class="line">  read_naddrs_max: 64</span><br><span class="line">  write_naddrs_max: 64</span><br><span class="line">  meta_mode: 0</span><br><span class="line">dev_ppaf: ~</span><br><span class="line">dev_ppaf_mask: ~</span><br><span class="line">dev_lbaf:</span><br><span class="line">  pugrp: 3</span><br><span class="line">  punit: 2</span><br><span class="line">  chunk: 11</span><br><span class="line">  sectr: 13</span><br><span class="line">dev_lbaz:</span><br><span class="line">  pugrp: 26</span><br><span class="line">  punit: 24</span><br><span class="line">  chunk: 13</span><br><span class="line">  sectr: 0</span><br><span class="line">dev_lbam:</span><br><span class="line">  pugrp:  &#x27;0000000000000000000000000000000000011100000000000000000000000000&#x27;</span><br><span class="line">  punit:  &#x27;0000000000000000000000000000000000000011000000000000000000000000&#x27;</span><br><span class="line">  chunk:  &#x27;0000000000000000000000000000000000000000111111111110000000000000&#x27;</span><br><span class="line">  sectr:  &#x27;0000000000000000000000000000000000000000000000000001111111111111&#x27;</span><br></pre></td></tr></table></figure>
+
+<h3 id="参考："><a href="#参考：" class="headerlink" title="参考："></a>参考：</h3><ol>
+<li><a href="https://www.dazhuanlan.com/2019/10/02/5d9395b689db4/">Ubuntu搭建使用LightNVM开发Open Channel SSD的QEMU虚拟机</a></li>
+<li><a href="https://blog.csdn.net/nikokvcs/article/details/84973529">Virtual OCSSD实验平台搭建</a></li>
+<li><a href="https://openchannelssd.readthedocs.io/en/latest/commands/">openchannelssd</a></li>
+<li><a href="http://lightnvm.io/liblightnvm/quick_start/index.html#cli-hello-open-channel-ssd">liblightnvm</a></li>
+<li><a href="https://github.com/OpenChannelSSD/qemu-nvme">github: qemu-nvme</a></li>
+<li><a href="https://blog.csdn.net/zlx_csdn/article/details/80672057?utm_medium=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-2.pc_relevant_is_cache&depth_1-utm_source=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-2.pc_relevant_is_cache">xmanager 5 破解版，有需要自己下载</a></li>
+<li><a href="https://blog.51cto.com/568273240/1689280">xshell远程qemu-kvm虚拟机安装</a></li>
+</ol>
+]]></content>
+      <categories>
+        <category>OCSSD</category>
+      </categories>
+      <tags>
+        <tag>open channel SSD</tag>
+        <tag>lightnvm</tag>
+        <tag>qume</tag>
+      </tags>
+  </entry>
 </search>
