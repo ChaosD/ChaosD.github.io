@@ -418,59 +418,6 @@
       </tags>
   </entry>
   <entry>
-    <title>DiskSim + SSD extent，SSD FTL模拟-（一）安装</title>
-    <url>/2020/11/02/DiskSim+SSD%20extent,%20SSD%20FTL%E6%A8%A1%E6%8B%9F-%EF%BC%88%E4%B8%80%EF%BC%89%E5%AE%89%E8%A3%85/</url>
-    <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="\assets\css\APlayer.min.css"><script src="\assets\js\APlayer.min.js" class="aplayer-secondary-script-marker"></script><script class="meting-secondary-script-marker" src="\assets\js\Meting.min.js"></script><p>首先感谢<a href="http://cighao.com/">Hao Chen</a>博客记录的内容。笔者对于DiskSim没有接触，第一次成功安装全是按照前人博客完成。相对而言DiskSim + SSD extent的编译流程还是比较复杂，设计源码和make文件的大量改动。前人栽树后人乘凉，已经有现成的patch文件，避免了我们手动改动代码，不仅耗时还容易出错。</p>
-<p><strong>再次感谢！！</strong></p>
-<p><strong>笔者使用的系统介绍：centos7.6-64bit，内核版本5.8.6，编译器为4.8.5</strong></p>
-<h3 id="安装依赖"><a href="#安装依赖" class="headerlink" title="安装依赖"></a>安装依赖</h3><ul>
-<li>linux 如没安装flex、bison的话，先要安装。</li>
-</ul>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash">sudo yum install bison flex -y</span></span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>下载源码包</li>
-</ul>
-<p>disksim 4.0: <a href="http://www.pdl.cmu.edu/DiskSim/">http://www.pdl.cmu.edu/DiskSim/</a><br>SSD extension: <a href="http://research.microsoft.com/en-us/downloads/b41019e2-1d2b-44d8-b512-ba35ab814cd4/">http://research.microsoft.com/en-us/downloads/b41019e2-1d2b-44d8-b512-ba35ab814cd4/</a></p>
-<h3 id="解压安装包"><a href="#解压安装包" class="headerlink" title="解压安装包"></a>解压安装包</h3><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">$ tar xfz disksim-4.0-with-dixtrac.tar.gz</span><br><span class="line">$ cd disksim-4.0</span><br><span class="line">$ unzip ..&#x2F;ssd-add-on.zip</span><br></pre></td></tr></table></figure>
-
-<h3 id="补丁"><a href="#补丁" class="headerlink" title="补丁"></a>补丁</h3><p>补丁为：从Hao Chen的github上下载的相关patch文件。</p>
-<p>点击链接，下载 <a href="https://github.com/cighao/disksim-4.0-with-ssdmodel-patch">‘modify-patch’</a> 和 <a href="https://github.com/cighao/disksim-4.0-with-ssdmodel-64bit-patch">‘64bit-patch’</a>。下载好后将 <code>modify-patch</code> 和 <code>64bit-patch</code> 这两个文件都放到 <code>disksim-4.0</code> 路径下。</p>
-<p>step1. 集成 ssdmodel</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">patch -p1 &lt; ssdmodel/ssd-patch</span><br></pre></td></tr></table></figure>
-
-<p>step2. 修改文件</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">patch -p1 &lt; modify-patch</span><br></pre></td></tr></table></figure>
-
-<p>如果只想在 32 位系统上运行的话，step3可以跳过，直接 make 就行了。</p>
-<p>step3. 兼容64位的补丁</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">patch -p1 &lt; 64bit-patch</span><br></pre></td></tr></table></figure>
-
-<h3 id="make"><a href="#make" class="headerlink" title="make"></a>make</h3><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> make</span></span><br></pre></td></tr></table></figure>
-
-<h3 id="运行"><a href="#运行" class="headerlink" title="运行"></a>运行</h3><p>step1. 测试disksim能否顺利执行。</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> <span class="built_in">cd</span> valid</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> ./runvalid</span></span><br></pre></td></tr></table></figure>
-
-<p>正常运行，输出如下：</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">These results represent actual drive validation experiments</span><br><span class="line"></span><br><span class="line">QUANTUM_QM39100TD-SW (rms should be about 0.378)</span><br><span class="line">rms = 0.378078</span><br><span class="line"></span><br><span class="line">SEAGATE_ST32171W (rms should be about 0.349)</span><br><span class="line">rms = 0.347863</span><br><span class="line"></span><br><span class="line">SEAGATE_ST34501N (rms should be about 0.318)</span><br><span class="line">rms = 0.318228</span><br><span class="line"></span><br><span class="line">SEAGATE_ST39102LW (rms should be about 0.107)</span><br><span class="line">rms = 0.107098</span><br></pre></td></tr></table></figure>
-
-<p>step2. 测试ssd extension的脚本能否顺利执行。</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> chmod a+x ../ssdmodel/valid/runvalid</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> <span class="built_in">cd</span> ../ssdmodel/valid</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> ./runvalid</span></span><br></pre></td></tr></table></figure>
-
-<p>正常运行，输出如下：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">---Running tests with the synthetic workload generator---</span><br><span class="line"></span><br><span class="line">Sequential read (250K I&#x2F;Os): average SSD response time should be around 0.132 ms</span><br><span class="line">ssd Response time average:     0.132511</span><br><span class="line">Sequential write (250K I&#x2F;Os): average SSD response time should be around 0.310 ms</span><br><span class="line">ssd Response time average:     0.310895</span><br><span class="line">Sequential write (5M I&#x2F;Os): average SSD response time should be around 0.334 ms</span><br><span class="line">ssd Response time average:     0.334365</span><br><span class="line">Random read (250K I&#x2F;Os): average SSD response time should be around 0.136 ms</span><br><span class="line">ssd Response time average:     0.136118</span><br><span class="line">Random write (250K I&#x2F;Os): average SSD response time should be around 0.329 ms</span><br><span class="line">ssd Response time average:     0.329458</span><br><span class="line">Random write (5M I&#x2F;Os): average SSD response time should be around 0.593 ms</span><br><span class="line">ssd Response time average:     0.593438</span><br><span class="line">---Running tests with the real traces---</span><br><span class="line"></span><br><span class="line">IOzone: average SSD response time should be around 6.394276 ms</span><br><span class="line">ssd Response time average:     6.394276</span><br><span class="line">Postmark: average SSD response time should be around 4.140330 ms</span><br><span class="line">ssd Response time average:     4.140330</span><br></pre></td></tr></table></figure>
-
-]]></content>
-      <categories>
-        <category>Open-Channel SSD</category>
-      </categories>
-      <tags>
-        <tag>DiskSim</tag>
-        <tag>SSD extent</tag>
-        <tag>Open-Channel SSD</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Lightnvm+qemu 搭建Open Channel SSD测试环境</title>
     <url>/2020/11/10/Lightnvm+qemu%20%E6%90%AD%E5%BB%BAOpen%20Channel%20SSD%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83/</url>
     <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="\assets\css\APlayer.min.css"><script src="\assets\js\APlayer.min.js" class="aplayer-secondary-script-marker"></script><script class="meting-secondary-script-marker" src="\assets\js\Meting.min.js"></script><p>Lightnvm的原作者在文档中给出了两种实现方式，第一种是使用真实设备，比如CNEX公司，华为公司的Open-channel SSD，价格昂贵。第二种方式就是本文将要介绍的，使用<a href="https://www.qemu.org/">QEMU</a>的方式，向主机侧提供一个模拟的支持open channel功能的nvme设备。实际上qemu中仅仅是模拟了NVMe specification 1.2.1的HCI的功能逻辑，并且作者增加了支持lightnvm的扩展，让主机端的驱动程序以为下面是一个真实的设备，这样一种方式就提供了一个快速，便捷地体验Lightnvm的方式 : )<br>下面是我的配置过程。</p>
@@ -562,6 +509,59 @@
         <tag>open channel SSD</tag>
         <tag>lightnvm</tag>
         <tag>qume</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>DiskSim + SSD extent，SSD FTL模拟-（一）安装</title>
+    <url>/2020/11/02/DiskSim+SSD%20extent%E6%A8%A1%E6%8B%9FSSD%E8%A1%8C%E4%B8%BA/</url>
+    <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="\assets\css\APlayer.min.css"><script src="\assets\js\APlayer.min.js" class="aplayer-secondary-script-marker"></script><script class="meting-secondary-script-marker" src="\assets\js\Meting.min.js"></script><p>首先感谢<a href="http://cighao.com/">Hao Chen</a>博客记录的内容。笔者对于DiskSim没有接触，第一次成功安装全是按照前人博客完成。相对而言DiskSim + SSD extent的编译流程还是比较复杂，设计源码和make文件的大量改动。前人栽树后人乘凉，已经有现成的patch文件，避免了我们手动改动代码，不仅耗时还容易出错。</p>
+<p><strong>再次感谢！！</strong></p>
+<p><strong>笔者使用的系统介绍：centos7.6-64bit，内核版本5.8.6，编译器为4.8.5</strong></p>
+<h3 id="安装依赖"><a href="#安装依赖" class="headerlink" title="安装依赖"></a>安装依赖</h3><ul>
+<li>linux 如没安装flex、bison的话，先要安装。</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash">sudo yum install bison flex -y</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>下载源码包</li>
+</ul>
+<p>disksim 4.0: <a href="http://www.pdl.cmu.edu/DiskSim/">http://www.pdl.cmu.edu/DiskSim/</a><br>SSD extension: <a href="http://research.microsoft.com/en-us/downloads/b41019e2-1d2b-44d8-b512-ba35ab814cd4/">http://research.microsoft.com/en-us/downloads/b41019e2-1d2b-44d8-b512-ba35ab814cd4/</a></p>
+<h3 id="解压安装包"><a href="#解压安装包" class="headerlink" title="解压安装包"></a>解压安装包</h3><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">$ tar xfz disksim-4.0-with-dixtrac.tar.gz</span><br><span class="line">$ cd disksim-4.0</span><br><span class="line">$ unzip ..&#x2F;ssd-add-on.zip</span><br></pre></td></tr></table></figure>
+
+<h3 id="补丁"><a href="#补丁" class="headerlink" title="补丁"></a>补丁</h3><p>补丁为：从Hao Chen的github上下载的相关patch文件。</p>
+<p>点击链接，下载 <a href="https://github.com/cighao/disksim-4.0-with-ssdmodel-patch">‘modify-patch’</a> 和 <a href="https://github.com/cighao/disksim-4.0-with-ssdmodel-64bit-patch">‘64bit-patch’</a>。下载好后将 <code>modify-patch</code> 和 <code>64bit-patch</code> 这两个文件都放到 <code>disksim-4.0</code> 路径下。</p>
+<p>step1. 集成 ssdmodel</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">patch -p1 &lt; ssdmodel/ssd-patch</span><br></pre></td></tr></table></figure>
+
+<p>step2. 修改文件</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">patch -p1 &lt; modify-patch</span><br></pre></td></tr></table></figure>
+
+<p>如果只想在 32 位系统上运行的话，step3可以跳过，直接 make 就行了。</p>
+<p>step3. 兼容64位的补丁</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">patch -p1 &lt; 64bit-patch</span><br></pre></td></tr></table></figure>
+
+<h3 id="make"><a href="#make" class="headerlink" title="make"></a>make</h3><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> make</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="运行"><a href="#运行" class="headerlink" title="运行"></a>运行</h3><p>step1. 测试disksim能否顺利执行。</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> <span class="built_in">cd</span> valid</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> ./runvalid</span></span><br></pre></td></tr></table></figure>
+
+<p>正常运行，输出如下：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">These results represent actual drive validation experiments</span><br><span class="line"></span><br><span class="line">QUANTUM_QM39100TD-SW (rms should be about 0.378)</span><br><span class="line">rms = 0.378078</span><br><span class="line"></span><br><span class="line">SEAGATE_ST32171W (rms should be about 0.349)</span><br><span class="line">rms = 0.347863</span><br><span class="line"></span><br><span class="line">SEAGATE_ST34501N (rms should be about 0.318)</span><br><span class="line">rms = 0.318228</span><br><span class="line"></span><br><span class="line">SEAGATE_ST39102LW (rms should be about 0.107)</span><br><span class="line">rms = 0.107098</span><br></pre></td></tr></table></figure>
+
+<p>step2. 测试ssd extension的脚本能否顺利执行。</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> chmod a+x ../ssdmodel/valid/runvalid</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> <span class="built_in">cd</span> ../ssdmodel/valid</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> ./runvalid</span></span><br></pre></td></tr></table></figure>
+
+<p>正常运行，输出如下：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">---Running tests with the synthetic workload generator---</span><br><span class="line"></span><br><span class="line">Sequential read (250K I&#x2F;Os): average SSD response time should be around 0.132 ms</span><br><span class="line">ssd Response time average:     0.132511</span><br><span class="line">Sequential write (250K I&#x2F;Os): average SSD response time should be around 0.310 ms</span><br><span class="line">ssd Response time average:     0.310895</span><br><span class="line">Sequential write (5M I&#x2F;Os): average SSD response time should be around 0.334 ms</span><br><span class="line">ssd Response time average:     0.334365</span><br><span class="line">Random read (250K I&#x2F;Os): average SSD response time should be around 0.136 ms</span><br><span class="line">ssd Response time average:     0.136118</span><br><span class="line">Random write (250K I&#x2F;Os): average SSD response time should be around 0.329 ms</span><br><span class="line">ssd Response time average:     0.329458</span><br><span class="line">Random write (5M I&#x2F;Os): average SSD response time should be around 0.593 ms</span><br><span class="line">ssd Response time average:     0.593438</span><br><span class="line">---Running tests with the real traces---</span><br><span class="line"></span><br><span class="line">IOzone: average SSD response time should be around 6.394276 ms</span><br><span class="line">ssd Response time average:     6.394276</span><br><span class="line">Postmark: average SSD response time should be around 4.140330 ms</span><br><span class="line">ssd Response time average:     4.140330</span><br></pre></td></tr></table></figure>
+
+]]></content>
+      <categories>
+        <category>Open-Channel SSD</category>
+      </categories>
+      <tags>
+        <tag>DiskSim</tag>
+        <tag>SSD extent</tag>
+        <tag>Open Channel SSD</tag>
       </tags>
   </entry>
 </search>
