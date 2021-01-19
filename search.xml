@@ -565,9 +565,9 @@
       </tags>
   </entry>
   <entry>
-    <title></title>
-    <url>/2020/11/10/SATA%E3%80%81mSATA%E3%80%81M.2%E3%80%81M.2%EF%BC%88NVMe%EF%BC%89%E3%80%81PCIE%E5%9B%BA%E6%80%81%E7%A1%AC%E7%9B%98%E6%8E%A5%E5%8F%A3%E8%AF%A6%E8%A7%A3/</url>
-    <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="\assets\css\APlayer.min.css"><script src="\assets\js\APlayer.min.js" class="aplayer-secondary-script-marker"></script><script class="meting-secondary-script-marker" src="\assets\js\Meting.min.js"></script><h1 id="SATA、mSATA、M-2、M-2（NVMe）、PCIE固态硬盘接口详解"><a href="#SATA、mSATA、M-2、M-2（NVMe）、PCIE固态硬盘接口详解" class="headerlink" title="SATA、mSATA、M.2、M.2（NVMe）、PCIE固态硬盘接口详解"></a>SATA、mSATA、M.2、M.2（NVMe）、PCIE固态硬盘接口详解</h1><p>引用自：<a href="https://blog.csdn.net/shuai0845/article/details/98330290">shuai0845 - SATA、mSATA、M.2、M.2（NVMe）、PCIE固态硬盘接口详解</a></p>
+    <title>SATA、mSATA、M.2、M.2（NVMe）、PCIE固态硬盘接口详解</title>
+    <url>/2021/01/19/SATA%E3%80%81mSATA%E3%80%81M.2%E3%80%81M.2%EF%BC%88NVMe%EF%BC%89%E3%80%81PCIE%E5%9B%BA%E6%80%81%E7%A1%AC%E7%9B%98%E6%8E%A5%E5%8F%A3%E8%AF%A6%E8%A7%A3/</url>
+    <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="\assets\css\APlayer.min.css"><script src="\assets\js\APlayer.min.js" class="aplayer-secondary-script-marker"></script><script class="meting-secondary-script-marker" src="\assets\js\Meting.min.js"></script><p>引用自：<a href="https://blog.csdn.net/shuai0845/article/details/98330290">shuai0845 - SATA、mSATA、M.2、M.2（NVMe）、PCIE固态硬盘接口详解</a></p>
 <h2 id="接口"><a href="#接口" class="headerlink" title="接口"></a><strong>接口</strong></h2><p>目前固态硬盘的主要接口有：</p>
 <h3 id="SATA接口"><a href="#SATA接口" class="headerlink" title="SATA接口"></a><strong>SATA接口</strong></h3><p>作为目前应用最多的硬盘接口，SATA 3.0接口最大的优势就是成熟。普通2.5英寸SSD以及HDD硬盘都使用这种接口，理论传输带宽6Gbps，虽然比起新接口的10Gbps甚至32Gbps带宽差多了，但普通2.5英寸SSD也没这么高的需求，500MB/s多的读写速度也够用。</p>
 <p><img src= "/img/loading.gif" data-src="https://img-blog.csdnimg.cn/20190803133229660.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3NodWFpMDg0NQ==,size_16,color_FFFFFF,t_70" alt="img"></p>
@@ -619,6 +619,13 @@
 <p>目前PCI-E接口通道有PCI-E 2.0 x2及PCI-E 3.0 x4两种，最大速度达到32Gbps，可以满足未来一段时间的使用，而且早期PCI-E硬盘不能做启动盘的问题早解决，现在旗舰级SSD大多会选择PCI-E接口。</p>
 <p>虽然PCI-E SSD有诸多好处，但也不是每个人都适合。PCI-E SSD由于闪存颗粒和主控品质问题，总体成本较高，相比传统SATA固态硬盘价格贵一些。另外，由于PCI-e会占用总线通道，入门以及中端平台CPU通道数较少，都不太适合添加PCI-e SSD，只有Z170，或者是X79、X99这样顶级平台，才可以完全发挥PCI-E SSD的性能。总的来说，如果你是一个不差钱的土豪，那么就 PCI-e SSD吧！</p>
 ]]></content>
+      <categories>
+        <category>SSD</category>
+      </categories>
+      <tags>
+        <tag>SSD</tag>
+        <tag>接口</tag>
+      </tags>
   </entry>
   <entry>
     <title>centos 7使用tinyproxy配置局域网代理</title>
