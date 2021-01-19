@@ -506,9 +506,9 @@
         <category>OCSSD</category>
       </categories>
       <tags>
-        <tag>open channel SSD</tag>
         <tag>lightnvm</tag>
         <tag>qume</tag>
+        <tag>OCSSD</tag>
       </tags>
   </entry>
   <entry>
@@ -556,12 +556,12 @@
 
 ]]></content>
       <categories>
-        <category>Open-Channel SSD</category>
+        <category>OCSSD</category>
       </categories>
       <tags>
         <tag>DiskSim</tag>
         <tag>SSD extent</tag>
-        <tag>Open Channel SSD</tag>
+        <tag>OCSSD</tag>
       </tags>
   </entry>
   <entry>
