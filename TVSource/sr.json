@@ -6,7 +6,7 @@
           "name": "FMM_IPV6",
           "type":"0",
           "pass": true,
-          "url": "https://fanmingming.com/txt?url=https://live.fanmingming.com/tv/m3u/ipv6.m3u",
+          "url": "https://chaosd.github.io/TVSource/myLive.m3u",
           "epg": "https://epg.112114.xyz/?ch={name}&date={date}",     
           "logo": "https://epg.112114.xyz/logo/{name}.png"
         }
