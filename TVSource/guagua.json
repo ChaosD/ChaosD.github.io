@@ -5,7 +5,7 @@
           "name": "guagua",
           "type":"0",
           "pass": true,
-          "url": "https://raw.githubusercontent.com/lovingzyz/TVbox/main/18+.txt",
+          "url": "https://chaosd.github.io/TVSource/guagua.m3u",
           "epg": "https://epg.112114.xyz/?ch={name}&date={date}",     
           "logo": "https://epg.112114.xyz/logo/{name}.png"
         }
