@@ -1,6 +1,12 @@
 {
-    "wallpaper": "https://picsum.photos/1280/720/?blur=2",
-    "spider": "./custom_spider.jar;md5;6120d08f4eb1edce507bfcd1b339c482",
+    "updateTime": "2024-01-19 1:10:04",
+    "wallpapers": [
+        "https://bing.img.run/rand.php",
+        "https://api.lyiqk.cn/scenery",
+        "https://picsum.photos/1920/1080",
+        "https://source.unsplash.com/user/erondu/1920x1080",
+        "https://tuapi.eees.cc/api.php?category=fengjing&type=302"
+    ],
     "lives": [
         {
           "name": "FMM_IPV6",
