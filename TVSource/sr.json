@@ -279,14 +279,43 @@
     {"name": "nm","hosts": [  "toutiaovod.com"],"regex": [  "video/tos/cn"]},
     {"name": "cl","hosts": [  "magnet"],"regex": [  "最 新",  "直 播",  "更 新"]}
   ],
-	"lives": [
-	    {
-	      "name": "FMM_IPV6",
-	      "type":"0",
-	      "pass": true,
-	      "url": "https://chaosd.github.io/TVSource/myLive.m3u",
-	      "epg": "https://epg.112114.xyz/?ch={name}&date={date}",     
-	      "logo": "https://epg.112114.xyz/logo/{name}.png"
-	    }
-	],
+  "lives": [
+
+    {
+      "name": "肥猫",
+      "type": 0,
+      "url": "http://我不是.肥猫.live/TV/tvzb.txt",
+      "playerType": 1,
+      "ua": "okhttp/3.15",
+      "epg": "http://epg.112114.xyz/?ch={name}&date={date}",
+      "logo": "https://epg.112114.xyz/logo/{name}.png"
+    },
+    {
+      "name": "Sao2",
+      "type": 0,
+      "url": "https://raw.fgit.cf/Supprise0901/TVBox_live/main/live.txt",
+      "playerType": 1,
+      "ua": "okhttp/3.15",
+      "epg": "http://epg.112114.xyz/?ch={name}&date={date}",
+      "logo": "https://epg.112114.xyz/logo/{name}.png"
+    },
+    {
+      "name": "Sao0",
+      "type": 0,
+      "url": "https://xhdwc.tk/tvlive.txt",
+      "playerType": 1,
+      "ua": "okhttp/3.15",
+      "epg": "http://epg.112114.xyz/?ch={name}&date={date}",
+      "logo": "https://epg.112114.xyz/logo/{name}.png"
+    },
+    {
+      "name": "ipv6",
+      "type": 0,
+      "url": "https://live.fanmingming.com/tv/m3u/ipv6.m3u",
+      "playerType": 1,
+      "ua": "okhttp/3.15",
+      "epg": "http://epg.112114.xyz/?ch={name}&date={date}",
+      "logo": "https://epg.112114.xyz/logo/{name}.png"
+    }
+  ]
 }
